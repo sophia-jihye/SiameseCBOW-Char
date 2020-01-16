@@ -1,0 +1,10 @@
+__pycache__/
+*.egg-info
+dist
+.ipynb_checkpoints/
+data
+output
+Untitled.ipynb
+*.csv
+*.json
+*.pkl
