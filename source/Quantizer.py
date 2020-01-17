@@ -1,9 +1,10 @@
-from collections import Counter
+from collections import Counter, namedtuple
 from config import parameters
 from utils import *
 import hangul
 import os
 import re
+import numpy as np
 
 class Quantizer:
     def __init__(self, sentences_of_nouns):
@@ -40,20 +41,16 @@ class Quantizer:
         return words
     
     def create_vocab(self, vocab_filepath, sentences_of_nouns):
-        word2idx = {tokens.UNK:0}
-        char2idx = {tokens.ZEROPAD:0, tokens.START:1, tokens.END:2, tokens.UNK:3}
-        
+        word2idx = {self.tokens.UNK:0}
+        char2idx = {self.tokens.ZEROPAD:0, self.tokens.START:1, self.tokens.END:2, self.tokens.UNK:3}
         wordcount = Counter()
         charcount = Counter()
         num_of_words = 0
         max_sentence_length_tmp = 0 
         for i, line in enumerate(sentences_of_nouns):
-            if i % 1000 == 0: 
-                print('Processing %dth sentence to create vocab dictionary' % i)
-                
             def update(word, chars_of_word):
                 wordcount.update([word])
-                charcount.update(chars)
+                charcount.update(chars_of_word)
             
             len_of_chars_in_sentence = 0
             words = self.line2words_blank(line)
@@ -80,16 +77,15 @@ class Quantizer:
         print(log_content)
         write_log(self.log_dir, 'vocab.log', log_content)
 
-        # save output preprocessed files
-        print('Created vocab file: ', vocab_filepath)
+        # save vocab file
         idx2word = dict([(value, key) for (key, value) in word2idx.items()])
         idx2char = dict([(value, key) for (key, value) in char2idx.items()])
-        np.savez(out_vocabfile, idx2word=idx2word, word2idx=word2idx, idx2char=idx2char, char2idx=char2idx, max_sentence_length=max_sentence_length)
+        np.savez(vocab_filepath, idx2word=idx2word, word2idx=word2idx, idx2char=idx2char, char2idx=char2idx, max_sentence_length=max_sentence_length)
+        print('Created file: ', vocab_filepath)
     
     def vocab_unpack(self, vocab_filepath, sentences_of_nouns):
-        if os.path.exists(vocab_filepath):
-            vocab = np.load(vocab_filepath)
-            print('Loaded file: ', vocab_filepath)
-        else:
-            vocab = create_vocab(vocab_filepath, sentences_of_nouns)
+        if not os.path.exists(vocab_filepath):
+            self.create_vocab(vocab_filepath, sentences_of_nouns)
+        vocab = np.load(vocab_filepath)
+        print('Loaded file: ', vocab_filepath)
         return vocab['idx2word'], vocab['word2idx'], vocab['idx2char'], vocab['char2idx'], vocab['max_sentence_length']

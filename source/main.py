@@ -25,7 +25,7 @@ def raw2preprocessed(preprocessor, df):
     
     # save as .csv
     df.to_csv(os.path.join(sentences_of_nouns_csv_filepath % len(df) ), index=False)    
-    print('Created file:', sentences_of_nouns_csv_filepath)
+    print('Created file:', sentences_of_nouns_csv_filepath % len(df))
     return df
 
 def main():
