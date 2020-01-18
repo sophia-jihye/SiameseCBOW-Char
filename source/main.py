@@ -4,6 +4,7 @@ import pandas as pd
 import json
 from Preprocessor import Preprocessor
 from Quantizer import Quantizer
+from Quantizer import EncodedText
 
 kci_sentences_csv_filepath = parameters.kci_sentences_csv_filepath
 sentences_of_nouns_csv_filepath = parameters.sentences_of_nouns_csv_filepath
@@ -35,6 +36,7 @@ def main():
     df = raw2preprocessed(preprocessor, df)
     
     quantizer = Quantizer(df['nouns'].values)
+    encoded_text = EncodedText(df[['document_id', 'nouns']], quantizer.max_len_of_words_in_sentence, quantizer.word2idx)
     
 if __name__ == '__main__':
     main()

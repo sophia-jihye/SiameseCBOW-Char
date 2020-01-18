@@ -11,7 +11,11 @@ import json
 # User configuration
 min_df = 0.95
 max_num_of_unique_words_at_most = 50000
-max_sentence_length_at_most = 5000
+max_len_of_words_in_sentence_at_most = 5000
+max_len_of_chars_in_sentence_at_most = 5000
+batch_size = 32
+n_positive = 2
+n_negative = 5
 
 # System configuration
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,7 +47,11 @@ class Parameters:
         self.log_dir = log_dir
         self.min_df = min_df
         self.max_num_of_unique_words_at_most = max_num_of_unique_words_at_most
-        self.max_sentence_length_at_most = max_sentence_length_at_most
+        self.max_len_of_words_in_sentence_at_most = max_len_of_words_in_sentence_at_most
+        self.max_len_of_chars_in_sentence_at_most = max_len_of_chars_in_sentence_at_most
+        self.batch_size = batch_size
+        self.n_positive = n_positive
+        self.n_negative = n_negative
         
         self.kci_sentences_csv_filepath = kci_sentences_csv_filepath
         self.parameters_json_filepath = parameters_json_filepath
