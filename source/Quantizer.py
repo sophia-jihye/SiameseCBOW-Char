@@ -90,13 +90,14 @@ class Quantizer:
         return vocab['idx2word'].item(), vocab['word2idx'].item(), vocab['idx2char'].item(), vocab['char2idx'].item(), vocab['max_len_of_words_in_sentence'].item(), vocab['max_len_of_chars_in_sentence'].item()
     
 class EncodedText:
-    def __init__(self, df, sentence_length, word2idx):
-        self.sentences_by_document = self.sentences_by_document(df)
+    def __init__(self, df, sentence_length, word2idx, tokens):
+        self.sentences_by_document, self.num_of_train_rows = self.sentences_by_document(df)
         self.batch_size = parameters.batch_size
         self.n_positive = parameters.n_positive
         self.n_negative = parameters.n_negative
         self.sentence_length = sentence_length
         self.word2idx = word2idx
+        self.tokens = tokens
         rd.seed(42)   # random_seed = 42
         
     def sentences_by_document(self, df):
@@ -104,9 +105,50 @@ class EncodedText:
         sentences_by_document = list()
         for doc_id in doc_ids:
             sentences_by_document.append(df[df['document_id']==doc_id]['nouns'].values)
-        return sentences_by_document
-        
+        num_of_train_rows = len(df) - (2*len(doc_ids))
+        return sentences_by_document, num_of_train_rows
+
+    def padding(self, line, sentence_length, unk_idx):
+        if len(line) < sentence_length:
+            line.extend([unk_idx] * (sentence_length - len(line)))
+        else:
+            line = line[:sentence_length]
+        return line
+
+    def line2bow(self, line):
+        line = list(map(lambda x: self.word2idx.get(x, self.word2idx[self.tokens.UNK]), line2words_blank(line)))
+        return self.padding(line, sentence_length, self.word2idx[self.tokens.UNK])
+
+    def other_than(self, some_list, inf, sup):
+        if inf==0:
+            return some_list[sup+1:]
+        elif sup==len(some_list)-1:
+            return some_list[:inf]
+        else:
+            return some_list[:inf] + some_list[sup+1:]
+    
     def __iter__(self):
+        _one_batch = [] 
+        pos = []
+        neg = []
+        batch_y = np.array(([1.0/self.n_positive]*self.n_positive + [0.0]*self.n_negative) * self.batch_size).reshape(self.batch_size, self.n_positive + self.n_negative)
+        for one_doc in self.sentences_by_document:
+            for t in range(len(one_doc)):
+                if t-1 < 0 :   # the first sentence of document
+                    continue
+                if t + 1 >= len(one_doc):   # the last sentence of document
+                    continue
+
+                _one_batch.append(self.line2bow(one_doc[t]))
+                pos.append(self.line2bow(one_doc[t-1]))
+                pos.append(self.line2bow(one_doc[t+1]))
+                for i, n in enumerate(rd.sample(self.other_than(one_doc, t-1, t+1), self.n_negative)):
+                    neg.append(self.line2bow(n))
+                if len(_one_batch) == self.batch_size:
+                    yield ([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg], batch_y)
+                    _one_batch = [] 
+                    pos = []
+                    neg = []
         
         
         

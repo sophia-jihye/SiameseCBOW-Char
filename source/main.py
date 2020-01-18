@@ -5,6 +5,7 @@ import json
 from Preprocessor import Preprocessor
 from Quantizer import Quantizer
 from Quantizer import EncodedText
+from math import ceil
 
 kci_sentences_csv_filepath = parameters.kci_sentences_csv_filepath
 sentences_of_nouns_csv_filepath = parameters.sentences_of_nouns_csv_filepath
@@ -36,7 +37,11 @@ def main():
     df = raw2preprocessed(preprocessor, df)
     
     quantizer = Quantizer(df['nouns'].values)
-    encoded_text = EncodedText(df[['document_id', 'nouns']], quantizer.max_len_of_words_in_sentence, quantizer.word2idx)
+    encoded_text = EncodedText(df[['document_id', 'nouns']], quantizer.max_len_of_words_in_sentence, quantizer.word2idx, quantizer.tokens)
+    steps_per_epoch = ceil(encoded_text.num_of_train_rows / encoded_text.batch_size)
+    
+    #model = SiameseCBOW(input_dim, output_dim, input_length=seq_length, n_positive=n_positive, n_negative=n_negative)
+    #model.fit_generator(iter(data_loader), steps_per_epoch=80000, epochs=epochs)
     
 if __name__ == '__main__':
     main()
