@@ -117,7 +117,7 @@ class EncodedText:
 
     def line2bow(self, line):
         line = list(map(lambda x: self.word2idx.get(x, self.word2idx[self.tokens.UNK]), line2words_blank(line)))
-        return self.padding(line, sentence_length, self.word2idx[self.tokens.UNK])
+        return self.padding(line, self.sentence_length, self.word2idx[self.tokens.UNK])
 
     def other_than(self, some_list, inf, sup):
         if inf==0:
@@ -142,16 +142,15 @@ class EncodedText:
                 _one_batch.append(self.line2bow(one_doc[t]))
                 pos.append(self.line2bow(one_doc[t-1]))
                 pos.append(self.line2bow(one_doc[t+1]))
-                for i, n in enumerate(rd.sample(self.other_than(one_doc, t-1, t+1), self.n_negative)):
+                for i, n in enumerate(rd.sample(self.other_than(list(one_doc), t-1, t+1), self.n_negative)):
                     neg.append(self.line2bow(n))
                 if len(_one_batch) == self.batch_size:
+                    print('=====')
+                    print([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg].shape)
+                    print(batch_y.shape)
+                    print(([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg], batch_y).shape)
+                    print('=====')
                     yield ([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg], batch_y)
                     _one_batch = [] 
                     pos = []
                     neg = []
-        
-        
-        
-        
-        
-        

@@ -2,15 +2,19 @@ from config import parameters
 from utils import *
 import pandas as pd
 import json
+import math
 from Preprocessor import Preprocessor
 from Quantizer import Quantizer
 from Quantizer import EncodedText
-from math import ceil
+from SiameseCBOW import SiameseCBOW
 
 kci_sentences_csv_filepath = parameters.kci_sentences_csv_filepath
 sentences_of_nouns_csv_filepath = parameters.sentences_of_nouns_csv_filepath
+model_embedding_vectors_pkl_filepath = parameters.model_embedding_vectors_pkl_filepath
 
 min_df = parameters.min_df
+siamese_embedding_dimension = parameters.siamese_embedding_dimension
+epochs = parameters.epochs
 
 def raw2preprocessed(preprocessor, df):
     # stopwords
@@ -37,11 +41,16 @@ def main():
     df = raw2preprocessed(preprocessor, df)
     
     quantizer = Quantizer(df['nouns'].values)
+    # quantizer.max_len_of_words_in_sentence
     encoded_text = EncodedText(df[['document_id', 'nouns']], quantizer.max_len_of_words_in_sentence, quantizer.word2idx, quantizer.tokens)
-    steps_per_epoch = ceil(encoded_text.num_of_train_rows / encoded_text.batch_size)
+    steps_per_epoch = math.trunc(encoded_text.num_of_train_rows / encoded_text.batch_size)
     
-    #model = SiameseCBOW(input_dim, output_dim, input_length=seq_length, n_positive=n_positive, n_negative=n_negative)
-    #model.fit_generator(iter(data_loader), steps_per_epoch=80000, epochs=epochs)
+    model = SiameseCBOW(len(encoded_text.word2idx), siamese_embedding_dimension, encoded_text.sentence_length, encoded_text.n_positive, encoded_text.n_negative)
+    model.fit_generator(iter(encoded_text), steps_per_epoch, epochs)
+    
+    # save as .pkl
+    model.save_embedding_vectors(model_embedding_vectors_pkl_filepath)
+    print('Created file:', model_embedding_vectors_pkl_filepath)
     
 if __name__ == '__main__':
     main()
