@@ -25,8 +25,8 @@ The following shows basic folder structure.
 │   ├──  kci_sentences_72832.csv
 ├── output
 │   ├── vocab.npz
+│   ├── vocab.log
 │   ├── 20200118-14-00-44
 │        ├── parameters.json
 │        ├── sentences_of_nouns_72832.csv
 │        ├── log
-│             ├── vocab.log
