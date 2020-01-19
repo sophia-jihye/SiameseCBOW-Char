@@ -9,7 +9,7 @@ import random as rd
 
 class Quantizer:
     def __init__(self, sentences_of_nouns):
-        self.log_dir = parameters.log_dir
+        self.output_base_dir = parameters.output_base_dir
         self.max_num_of_unique_words_at_most = parameters.max_num_of_unique_words_at_most
         self.max_len_of_words_in_sentence_at_most = parameters.max_len_of_words_in_sentence_at_most
         self.max_len_of_chars_in_sentence_at_most = parameters.max_len_of_chars_in_sentence_at_most
@@ -74,7 +74,7 @@ class Quantizer:
 
         log_content = '\n=====\n# of words (not unique): %d \n# of unique words: %d \n# of unique characters: %d \n=====\nSave Only\n=====\nmax_num_of_unique_words=%d \nmax_len_of_words_in_sentence=%d \nmax_len_of_chars_in_sentence=%d \n=====\n' % (num_of_words, len(wordcount), len(charcount), max_num_of_unique_words, max_len_of_words_in_sentence, max_len_of_chars_in_sentence)
         print(log_content)
-        write_log(self.log_dir, 'vocab.log', log_content)
+        write_log(self.output_base_dir, 'vocab.log', log_content)
 
         # save vocab file
         idx2word = dict([(value, key) for (key, value) in word2idx.items()])
