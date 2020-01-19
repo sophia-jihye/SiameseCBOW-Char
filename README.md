@@ -30,3 +30,11 @@ The following shows basic folder structure.
 │        ├── parameters.json
 │        ├── sentences_of_nouns_72832.csv
 │        ├── log
+```
+
+## Run
+### Siamese-CBOW-word [output: word-embedding]
+```sh
+cd source_for_word_embedding
+python main.py
+```

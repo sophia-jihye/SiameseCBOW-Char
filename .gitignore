@@ -4,6 +4,8 @@ dist
 .ipynb_checkpoints/
 output
 Untitled.ipynb
+*.npz
+*.json
 *.csv
 *.json
 *.pkl
