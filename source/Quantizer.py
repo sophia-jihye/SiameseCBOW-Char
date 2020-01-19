@@ -129,8 +129,8 @@ class EncodedText:
     
     def __iter__(self):
         _one_batch = [] 
-        pos = []
-        neg = []
+        pos=[[] for i in range(self.n_positive)]
+        neg=[[] for i in range(self.n_negative)]
         batch_y = np.array(([1.0/self.n_positive]*self.n_positive + [0.0]*self.n_negative) * self.batch_size).reshape(self.batch_size, self.n_positive + self.n_negative)
         for one_doc in self.sentences_by_document:
             for t in range(len(one_doc)):
@@ -140,17 +140,12 @@ class EncodedText:
                     continue
 
                 _one_batch.append(self.line2bow(one_doc[t]))
-                pos.append(self.line2bow(one_doc[t-1]))
-                pos.append(self.line2bow(one_doc[t+1]))
+                pos[0].append(self.line2bow(one_doc[t-1]))
+                pos[1].append(self.line2bow(one_doc[t+1]))
                 for i, n in enumerate(rd.sample(self.other_than(list(one_doc), t-1, t+1), self.n_negative)):
-                    neg.append(self.line2bow(n))
+                    neg[i].append(self.line2bow(n))
                 if len(_one_batch) == self.batch_size:
-                    print('=====')
-                    print([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg].shape)
-                    print(batch_y.shape)
-                    print(([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg], batch_y).shape)
-                    print('=====')
                     yield ([np.array(_one_batch)]+[np.array(p) for p in pos]+[np.array(n) for n in neg], batch_y)
                     _one_batch = [] 
-                    pos = []
-                    neg = []
+                    pos=[[] for i in range(self.n_positive)]
+                    neg=[[] for i in range(self.n_negative)]
