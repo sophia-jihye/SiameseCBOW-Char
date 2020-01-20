@@ -3,10 +3,10 @@ import os
 import argparse
 import json
 
-parser = argparse.ArgumentParser()
+#parser = argparse.ArgumentParser()
 #parser.add_argument('--bigram', type=lambda x: (str(x).lower() == 'true'), default=True)
-parser.add_argument('--epochs', type=int, default=1, help='epochs for training SiameseCBOW word embedding')
-args = parser.parse_args()
+#parser.add_argument('--epochs', type=int, default=1, help='epochs for training SiameseCBOW word embedding')
+#args = parser.parse_args()
 
 # User configuration
 min_df = 0.95
@@ -17,6 +17,7 @@ batch_size = 32
 n_positive = 2
 n_negative = 5
 siamese_embedding_dimension = 512
+epochs = 1
 
 # System configuration
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,7 +37,7 @@ model_embedding_vectors_pkl_filepath = os.path.join(now_time_dir, 'model_embeddi
 
 class Parameters:
     def __init__(self):
-        self.epochs = args.epochs
+        #self.epochs = args.epochs
         
         self.base_dir = base_dir
         self.data_dir = data_dir
@@ -50,6 +51,7 @@ class Parameters:
         self.n_positive = n_positive
         self.n_negative = n_negative
         self.siamese_embedding_dimension = siamese_embedding_dimension
+        self.epochs = epochs
         
         self.kci_sentences_csv_filepath = kci_sentences_csv_filepath
         self.vocab_filepath = vocab_filepath
